@@ -13,6 +13,7 @@ class MainViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var height: NSLayoutConstraint!
+    @IBOutlet weak var cityNameLabel: UILabel!
     
     //MARK: - Location var
     var locationManager: CLLocationManager!
@@ -20,11 +21,22 @@ class MainViewController: UIViewController {
     var latitude: Double?
     
     var weather: WeatherModel?
+    var currentOrientationIsLandscape = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         performLocationManager()
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        if UIDevice.current.orientation.isLandscape {
+            currentOrientationIsLandscape = true
+            height.constant = 50
+        } else {
+            currentOrientationIsLandscape = false
+            height.constant = 200
+        }
     }
     
 }
@@ -60,10 +72,10 @@ extension MainViewController: CLLocationManagerDelegate {
                 print(placemark.locality!)
                 print(placemark.administrativeArea!)
                 print(placemark.country!)
+                self.cityNameLabel.text = placemark.locality
             }
         }
         
-        //guard let _ = latitude, let _ = longitude else { return }
         if latitude != nil && longitude != nil {
             locationManager.stopUpdatingLocation()
             getWeatherByCoordinates()
@@ -114,6 +126,10 @@ extension MainViewController: UITableViewDataSource {
         
         cell.dayLabel.text = formatter.string(from: date).uppercased()
         cell.tempLabel.text = "\(Int(weather.daily[indexPath.row].temp.min))\u{00B0} / \(Int(weather.daily[indexPath.row].temp.max))\u{00B0}"
+        
+        cell.separatorInset = UIEdgeInsets.zero
+        cell.layoutMargins = UIEdgeInsets.zero
+        
         return cell
     }
     
@@ -123,9 +139,10 @@ extension MainViewController: UITableViewDataSource {
 extension MainViewController: UITableViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = -scrollView.contentOffset.y
-        print(offsetY)
+        //let offsetY = -scrollView.contentOffset.y
+        //print(offsetY)
         //height.constant = max(50, 200 + offsetY)
+
     }
     
 }

@@ -23,18 +23,17 @@
                                         <rect key="frame" x="8" y="8" width="206" height="36"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="30"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <color key="backgroundColor" systemColor="systemGreenColor" red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="bbW-cf-ZRc"/>
                                 </constraints>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="AKn-vv-OQv">
                                 <rect key="frame" x="0.0" y="288" width="414" height="100"/>
-                                <color key="backgroundColor" red="1" green="0.83234566450000003" blue="0.47320586440000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" red="0.35985505579999999" green="0.62483304740000001" blue="0.94037646060000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="tWo-BR-IF8"/>
                                 </constraints>
@@ -126,7 +125,7 @@
                                 </connections>
                             </tableView>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" red="0.29165244099999998" green="0.56581580639999995" blue="0.88134062290000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="aec-uU-qOB" firstAttribute="bottom" secondItem="d9W-dl-kPS" secondAttribute="bottom" id="3ZP-9T-jym"/>
                             <constraint firstItem="aec-uU-qOB" firstAttribute="trailing" secondItem="d9W-dl-kPS" secondAttribute="trailing" id="9Iw-5q-GJp"/>
@@ -149,6 +148,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="cityNameLabel" destination="lPD-Zu-cpc" id="WV2-Nh-dhV"/>
                         <outlet property="height" destination="bbW-cf-ZRc" id="8PL-s8-w7Y"/>
                         <outlet property="tableView" destination="aec-uU-qOB" id="387-Nm-oR1"/>
                     </connections>
