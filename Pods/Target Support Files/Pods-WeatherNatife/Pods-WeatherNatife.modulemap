@@ -1,0 +1,6 @@
+module Pods_WeatherNatife {
+  umbrella header "Pods-WeatherNatife-umbrella.h"
+
+  export *
+  module * { export * }
+}
