@@ -9,25 +9,30 @@
 import Foundation
 
 struct WeatherModel: Decodable {
-    let list: [List]
+    let hourly: [Hourly]
+    let daily: [Daily]
 }
 
-struct List: Decodable {
-    let id: Int
-    let name: String
-    let coord: Coord
-    let main: Main
+struct Hourly: Decodable {
     let dt: Int
+    let temp: Double
+    let feels_like: Double
+    let pressure: Double
+    let wind_speed: Double
     let weather: [Weather]
 }
 
-struct Coord: Decodable {
-    let lat: Double
-    let lon: Double
+struct Daily: Decodable {
+    let dt: Int
+    let temp: TempDaily
+    let weather: [Weather]
 }
 
-struct Main: Decodable {
-    let temp: Double
+struct TempDaily: Decodable {
+    let day: Double
+    let min: Double
+    let max: Double
+    let night: Double
 }
 
 struct Weather: Decodable {
