@@ -29,4 +29,5 @@ extension UIViewController {
         indicatorActivity.isHidden = true
         spinnerView.removeFromSuperview()
     }
+    
 }

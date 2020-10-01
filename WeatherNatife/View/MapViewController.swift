@@ -12,16 +12,17 @@ import MapKit
 class MapViewController: UIViewController {
 
     @IBOutlet weak var mapView: MKMapView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        prepareGesture()
         
+        view.backgroundColor = UIColor(hex: "#4A90E2")
+        prepareGesture()
     }
 
 }
 
+//MARK: - Map View Delegate
 extension MapViewController: MKMapViewDelegate {
     
     func prepareGesture() {
@@ -41,10 +42,10 @@ extension MapViewController: MKMapViewDelegate {
     }
     
     func addAnnotation(location: CLLocationCoordinate2D){
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = location
-            annotation.title = "Weather here?"
-            annotation.subtitle = "Weather here?"
-            self.mapView.addAnnotation(annotation)
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = location
+        annotation.title = "Weather here?"
+        annotation.subtitle = "Weather here?"
+        self.mapView.addAnnotation(annotation)
     }
 }

@@ -11,10 +11,10 @@ import Alamofire
 
 class NetworkManager {
       
-    static func fetchData(url: String, responseDataType: ResponseDataType, completion: @escaping (Data) -> ()) {
-        guard let url = URL(string: url) else { return }
+    static func fetchData(urlString: String, responseDataType: ResponseDataType, completion: @escaping (Data) -> ()) {
+        guard let url = URL(string: urlString.encodeUrl) else { return }
         switch responseDataType {
-        case .json:
+        case .json, .jsonCity:
             AF.request(url).responseJSON { (response) in
                 switch response.result {
                 case .success:
