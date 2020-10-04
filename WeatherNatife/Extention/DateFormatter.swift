@@ -30,4 +30,19 @@ extension Date {
         return dateFormatter.string(from: self as Date).uppercased()
     }
     
+    var shortWeekdayDayMonthUppercasedRu: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EE, d MMM"
+        dateFormatter.locale = Locale.init(identifier: "ru_RU_POSIX")
+        return dateFormatter.string(from: self as Date).uppercased()
+    }
+    
+}
+
+extension Int {
+    
+    var getDate: Date {
+        let epocTime = TimeInterval(self)
+        return Date(timeIntervalSince1970: epocTime)
+    }
 }

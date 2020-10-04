@@ -20,5 +20,6 @@ let keyVisicomAPI = "9d28529f718acd8aee5f5f22e825977a"
 enum ResponseDataType {
     case json
     case jsonCity
+    case jsonFeature
     case image
 }

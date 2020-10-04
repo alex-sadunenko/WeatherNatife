@@ -25,6 +25,8 @@ struct Features: Decodable {
 struct Properties: Decodable {
     let name: String
     let country: String
+    let level1: String?
+    let level2: String?
     let type: String
 }
 

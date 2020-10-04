@@ -9,16 +9,32 @@
 import UIKit
 import CoreLocation
 
+protocol MapDelegate: class {
+    func getCityWeather(city: CityMapModel)
+}
+
 class MainViewController: UIViewController {
 
+    @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var iconImage: UIImageView!
+    @IBOutlet weak var tempLabel: UILabel!
+    @IBOutlet weak var humidityLabel: UILabel!
+    @IBOutlet weak var windLabel: UILabel!
+    @IBOutlet weak var heightConstraint: NSLayoutConstraint!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var height: NSLayoutConstraint!
     @IBOutlet weak var cityNameLabel: UILabel!
     @IBOutlet weak var collactionView: UICollectionView! {
         didSet {
             collactionView.showsVerticalScrollIndicator = false
             collactionView.showsHorizontalScrollIndicator = false
         }
+    }
+    @IBAction func unwindSegue(_ segue: UIStoryboardSegue) {
+        guard let searchVC = segue.source as? SearchViewController else { return }
+        cityNameLabel.text = searchVC.currentCity
+        longitude = searchVC.currentCoordinate.first
+        latitude = searchVC.currentCoordinate.last
+        getWeatherByCoordinates()
     }
 
     //MARK: - Location var
@@ -40,13 +56,34 @@ class MainViewController: UIViewController {
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         if UIDevice.current.orientation.isLandscape {
             currentOrientationIsLandscape = true
-            height.constant = 50
+            heightConstraint.constant = 0
+            navigationItem.title = cityNameLabel.text
         } else {
             currentOrientationIsLandscape = false
-            height.constant = 200
+            heightConstraint.constant = 270
+            navigationItem.title = "Погода"
         }
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard segue.identifier == "segueToMapVC" else { return }
+        guard let mapVC = segue.destination as? MapViewController else { return }
+        mapVC.longitude = longitude
+        mapVC.latitude = latitude
+        mapVC.delegate = self
+    }
+}
+
+//MARK: - Map Delegate
+extension MainViewController: MapDelegate {
+    
+    func getCityWeather(city: CityMapModel) {
+        cityNameLabel.text = city.city
+        longitude = city.coordinate.longitude
+        latitude = city.coordinate.latitude
+        getWeatherByCoordinates()
+    }
+
 }
 
 //MARK: - Configure Navigation Bar
@@ -58,7 +95,6 @@ extension MainViewController {
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.barStyle = .black
         navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
-        //navigationController?.navigationBar.barTintColor = UIColor(hex: "#4A90E2")
     }
     
 }
@@ -92,9 +128,6 @@ extension MainViewController: CLLocationManagerDelegate {
             let placemark = placemarks! as [CLPlacemark]
             if placemark.count > 0 {
                 let placemark = placemarks![0]
-                print(placemark.locality!)
-                print(placemark.administrativeArea!)
-                print(placemark.country!)
                 self?.cityNameLabel.text = placemark.locality
             }
         }
@@ -107,20 +140,33 @@ extension MainViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Error \(error.localizedDescription)")
-        //displayWarning(title: "Warning", message: "Problem with getting location")
     }
     
     func getWeatherByCoordinates() {
         
         guard let latitude = latitude, let longitude = longitude else { return }
-        //showSpinner()
+        showSpinner()
         LocalManager.shared.getData(url: baseURL + "?lat=\(String(describing: latitude))&lon=\(String(describing: longitude))&units=metric&lang=uk&cnt=1&appid=" + keyAPI, responseDataType: .json) { (weatherModel) in
             DispatchQueue.main.async {
-                self.weather = weatherModel as? WeatherModel
+                if let weather = weatherModel as? WeatherModel {
+                    self.weather = weather
+                    self.dateLabel.text = weather.current.dt.getDate.shortWeekdayDayMonthUppercasedRu
+                    self.tempLabel.text = "\(Int(weather.current.temp))\u{00B0}"
+                    self.humidityLabel.text = "\(Int(weather.current.humidity)) %"
+                    self.windLabel.text = "\(Int(weather.current.windSpeed)) м/сек"
+                    if let nameIcon = weather.current.weather.first?.icon {
+                        let url = iconURL + "\(nameIcon)@2x.png"
+                        LocalManager.shared.getData(url: url, responseDataType: .image) { (imageData) in
+                            DispatchQueue.main.async {
+                                self.iconImage.image = UIImage(data: imageData as! Data)
+                            }
+                        }
+                    }
 
-                self.tableView.reloadData()
-                self.collactionView.reloadData()
-                //self.removeSpinner()
+                    self.tableView.reloadData()
+                    self.collactionView.reloadData()
+                }
+                self.removeSpinner()
             }
             
         }
@@ -168,6 +214,7 @@ extension MainViewController: UITableViewDataSource {
 extension MainViewController: UITableViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // parallax effect
         //let offsetY = -scrollView.contentOffset.y
         //print(offsetY)
         //height.constant = max(50, 200 + offsetY)

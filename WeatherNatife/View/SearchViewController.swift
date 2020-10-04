@@ -10,10 +10,17 @@ import UIKit
 
 class SearchViewController: UIViewController {
 
+    @IBOutlet weak var tableView: UITableView! {
+        didSet {
+            tableView.tableFooterView = UIView(frame: CGRect.zero)
+        }
+    }
     
     let searchController = UISearchController(searchResultsController: nil)
-    private var timer: Timer?
+    var timer: Timer?
     var cities: CityModel?
+    var currentCity: String = ""
+    var currentCoordinate = [Double]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,15 +35,16 @@ class SearchViewController: UIViewController {
 extension SearchViewController {
     
     func configureSearchController() {
-        searchController.searchResultsUpdater = self
-        searchController.obscuresBackgroundDuringPresentation = true
-        searchController.searchBar.placeholder = "Населенный пункт"
-        searchController.searchBar.barTintColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-        searchController.searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: searchController.searchBar.searchTextField.placeholder ?? "", attributes: [.foregroundColor: UIColor.white])
-        searchController.searchBar.tintColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        navigationItem.hidesSearchBarWhenScrolling = false
         navigationItem.searchController = searchController
-        definesPresentationContext = true
         searchController.searchBar.delegate = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Населенный пункт"
+        searchController.searchBar.tintColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        searchController.searchBar.barTintColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        //searchController.searchBar.searchTextField.attributedPlaceholder = NSAttributedString(string: searchController.searchBar.searchTextField.placeholder ?? "", attributes: [.foregroundColor: UIColor.white])
+        definesPresentationContext = true
+
     }
 
 }
@@ -45,45 +53,54 @@ extension SearchViewController {
 extension SearchViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        print("UISearchBarDelegate " + searchText)
         if searchText.isEmpty {
+            cities = nil
+            self.tableView.reloadData()
             return
         }
         timer?.invalidate()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { (_) in            LocalManager.shared.getData(url: baseVisicomURL + "?text=\(searchText)&key=\(keyVisicomAPI)", responseDataType: .jsonCity) { (cityModel) in
-                print(cityModel)
-                //self?.tracks = searchResults?.results ?? []
-                //self?.tableView.reloadData()
+        timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { (_) in
+            LocalManager.shared.getData(url: baseVisicomURL + "?text=\(searchText)&key=\(keyVisicomAPI)", responseDataType: .jsonCity) { (cityModel) in
+            self.cities = cityModel as? CityModel
+            self.tableView.reloadData()
             }
         })
     }
 }
 
-//MARK: - Search Controller Delegate
-extension SearchViewController: UISearchResultsUpdating {
+//MARK: - Table View Data Source
+extension SearchViewController: UITableViewDataSource {
     
-    func updateSearchResults(for searchController: UISearchController) {
-        let searchText = searchController.searchBar.text!
-        print("UISearchResultsUpdating " + searchText)
-//        switch segmentControl.selectedSegmentIndex {
-//        case 0:
-//            codeTextView.becomeFirstResponder()
-//            filteredProduct = productArray.filter({ (products: Product) -> Bool in
-//                return products.date.lowercased().contains(searchText.lowercased())
-//            })
-//        case 1:
-//            filteredProduct = productArray.filter({ (products: Product) -> Bool in
-//                return products.description.lowercased().contains(searchText.lowercased())
-//            })
-//        case 2:
-//            filteredProduct = productArray.filter({ (products: Product) -> Bool in
-//                return products.isCheck == switchControl.isOn
-//            })
-//        default:
-//            return
-//        }
-//
-//        tableView.reloadData()
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard let cities = cities else { return 0 }
+        return cities.features.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cities = cities else { return UITableViewCell() }
+        let city = cities.features[indexPath.row]
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CityTableViewCell
+        cell.cityLabel.text = "\(city.properties.name), \(city.properties.type)"
+        cell.regionLabel.text = "\(city.properties.country), \(city.properties.level1 ?? ""), \(city.properties.level2 ?? "")"
+        
+        cell.separatorInset = UIEdgeInsets.zero
+        cell.layoutMargins = UIEdgeInsets.zero
+        
+        return cell
     }
     
 }
+
+//MARK: - Table View Delegate
+extension SearchViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cities = cities else { return }
+        let city = cities.features[indexPath.row]
+        currentCity = city.properties.name
+        currentCoordinate = city.geoCentroid.coordinates
+        performSegue(withIdentifier: "unwindSegueToMainVC", sender: self)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+

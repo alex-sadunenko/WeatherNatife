@@ -23,6 +23,9 @@ class LocalManager {
                 case .jsonCity:
                     let result = try JSONDecoder().decode(CityModel.self, from: data)
                     completion(result)
+                case .jsonFeature:
+                    let result = try JSONDecoder().decode(Features.self, from: data)
+                    completion(result)
                 case .image:
                     completion(data as Any)
                 }

@@ -9,8 +9,25 @@
 import Foundation
 
 struct WeatherModel: Decodable {
+    let current: Current
     let hourly: [Hourly]
     let daily: [Daily]
+}
+
+struct Current: Decodable {
+    let dt: Int
+    let temp: Double
+    let windSpeed: Double
+    let humidity: Double
+    let weather: [Weather]
+    
+    enum CodingKeys: String, CodingKey {
+        case dt
+        case temp
+        case windSpeed = "wind_speed"
+        case humidity
+        case weather
+    }
 }
 
 struct Hourly: Decodable {
